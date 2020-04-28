@@ -5,6 +5,7 @@ date: "4/26/2020"
 output: word_document
 ---
 
+
 import the data frame with project data
 
 ```{r}
@@ -36,7 +37,11 @@ capacity.sd
 
 caclulate time for all parts for each machine
 
+First calculate the values for machine A
+
 ```{r}
+# machine A
+# import means and sds for manufacturing time for parts in machine A
 means.A <- sturgill_manu$Machine.A.avg
 sds.A <- sturgill_manu$Machine.A.sd
 
@@ -56,9 +61,15 @@ sd.machine.A <- sd(machine.A)
 sd.machine.A
 
 hist(machine.A)
+```
 
+With a mean of 3.4 machines needed to meet demand, we recommend having 4 of Machine A.
+
+Next, calculate values for machine B.
+
+```{r}
 # machine B
-
+# import means and sds for manufacturing time for parts in machine A
 means.B <- sturgill_manu$Machine.B.avg
 sds.B <- sturgill_manu$Machine.B.sd
 
@@ -78,10 +89,18 @@ hist(machine.B)
 
 sd.machine.B <- sd(machine.B)
 sd.machine.B
+```
+
+With a mean of 3.12 machines needed to meet demand, we recommend having 4 of Machine B.
+
+Since it requires one person to run both Machine A and B a total of 4 employees will be needed for those two types machines.
 
 
+Next calculate values for machine C.
+
+```{r}
 # machine C
-
+# import means and sds for manufacturing time for parts in machine A
 means.C <- sturgill_manu$Machine.C.avg
 sds.C <- sturgill_manu$Machine.C.sd
 
@@ -104,13 +123,20 @@ hist(machine.C)
 
 ```
 
-Get employee count
+With a mean of  12.01 machines needed to meet demand, we recommend having 13 of Machine B. 
+
+Since it requires one person to run each Machine C a total of 13 employees will be needed for those machines. Combined with the 4 employees required to operate type A & B machines, aa total of 17 employees would be needed.
+
+
+Get employee count histogram
 
 ```{r}
 
 # employee count
 # add up machine time
+
 employee.count <- machine.A/2 + machine.B/2 + machine.C
+
 mean(employee.count)
 sd(employee.count)
 hist(employee.count)
