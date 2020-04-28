@@ -84,3 +84,161 @@ util = plot(resources, metric = "utilization")
 #Grid Extra
 library(gridExtra)
 grid.arrange(wt,util)
+
+
+
+#####
+#
+# Alternative 1
+#
+#####
+
+### Alt 1 Pts See doctor start to finish ###
+library(simmer)
+library(simmer.plot)
+
+set.seed(123)
+
+Case3Alt1 <- trajectory() %>%
+  branch(option = function() sample(1:2, 1, prob=c(0.2,0.80), replace = T),
+         continue = c(T, T),
+         
+         # Need Immediate Attention
+         trajectory("NIA New") %>%
+           set_attribute("Priority", 3) %>%
+           set_prioritization(c(5, 7, T)) %>%
+           seize("Doctor", 1) %>%
+           timeout(function() runif(1, 3, 77)) %>%
+           timeout(function() runif(1, 5, 55)) %>%
+           release("Doctor", 1),
+         
+         
+         # Can Wait
+         trajectory("CW New") %>%
+           set_attribute("Priority A", 1) %>%
+           set_prioritization(c(2, 7, T)) %>%
+           seize("Doctor", 1) %>%
+           timeout(function() runif(1, 1, 29)) %>%
+           timeout(function() runif(1, 2, 18)) %>%
+           release("Doctor", 1)
+  )
+
+
+plot(Case3Alt1, verbose = T)
+
+### ENVS
+
+set.seed(123)
+
+Case3Alt1envs <- lapply(1:20, function(i) {
+  env <- simmer("EmerDept") %>%
+    add_resource("Doctor", 2) %>%
+    add_generator("Patients", Case3Alt1, function() runif(1, 10, 30), mon = 2) %>%
+    run(1440)
+})
+
+## Visualizations 
+# waiting Time
+arrivalsAlt1 <- get_mon_arrivals(Case3Alt1envs)
+wtAlt1 = plot(arrivalsAlt1, metric = "waiting_time")
+
+# Resource (Doctor) Utlization
+resourcesAlt1 <- get_mon_resources(Case3Alt1envs)
+utilAlt1 = plot(resourcesAlt1, metric = "utilization")
+
+#Grid Extra
+library(gridExtra)
+grid.arrange(wtAlt1,utilAlt1)
+
+grid.arrange(wt,wtAlt1)
+
+grid.arrange(util,utilAlt1)
+
+
+#####
+#
+# Alternative 2
+#
+#####
+
+## Alt 2 Each Doctor sees different sets
+# Doctor 1 sees 3's and 1's, Doctor 2 sees 2's
+
+library(simmer)
+library(simmer.plot)
+
+set.seed(123)
+
+Case3NIAReQ_Alt2 <- trajectory() %>%
+  set_attribute("Priority B", 2) %>%
+  set_prioritization(c(4, 7, T)) %>%
+  seize("Doctor2", 1) %>%
+  timeout(function() runif(1, 5, 55)) %>%
+  release("Doctor2", 1)
+
+
+Case3CWReQ_Alt2 <- trajectory() %>%
+  set_attribute("Priority B", 2) %>%
+  set_prioritization(c(4, 7, T)) %>%
+  seize("Doctor2", 1) %>%
+  timeout(function() runif(1, 2, 18)) %>%
+  release("Doctor2", 1)
+
+Case3New_Alt2 <- trajectory() %>%
+  branch(option = function() sample(1:2, 1, prob=c(0.2,0.80), replace = T),
+         continue = c(T, T),
+         
+         # Need Immediate Attention
+         trajectory("NIA New") %>%
+           set_attribute("Priority A", 3) %>%
+           set_prioritization(c(5, 7, T)) %>%
+           seize("Doctor1", 1) %>%
+           timeout(function() runif(1, 3, 77)) %>%
+           release("Doctor1", 1) %>%
+           join(Case3NIAReQ_Alt2),
+         
+         
+         # Can Wait
+         trajectory("CW New") %>%
+           set_attribute("Priority A", 1) %>%
+           set_prioritization(c(2, 7, T)) %>%
+           seize("Doctor1", 1) %>%
+           timeout(function() runif(1, 1, 29)) %>%
+           release("Doctor1", 1) %>%
+           join(Case3CWReQ_Alt2)
+         
+  )
+
+
+plot(Case3New, verbose = T)
+
+
+### ENVS
+
+set.seed(123)
+
+Case3envs_Alt2 <- lapply(1:20, function(i) {
+  env <- simmer("EmerDept") %>%
+    add_resource("Doctor1", 1) %>%
+    add_resource("Doctor2", 1) %>%
+    add_generator("Patient", Case3New_Alt2, function() runif(1, 10, 30), mon = 2) %>%
+    run(1440)
+})
+
+
+## Visualizations 
+# waiting Time
+arrivalsAlt2 <- get_mon_arrivals(Case3envs_Alt2)
+wtAlt2 = plot(arrivalsAlt2, metric = "waiting_time")
+
+# Resource (Doctor) Utlization
+resourcesAlt2 <- get_mon_resources(Case3envs_Alt2)
+utilAlt2 = plot(resourcesAlt2, metric = "utilization")
+
+#Grid Extra
+library(gridExtra)
+grid.arrange(wtAlt1,utilAlt1)
+
+grid.arrange(wt,wtAlt1,wtAlt2)
+
+grid.arrange(util,utilAlt1,utilAlt2)
