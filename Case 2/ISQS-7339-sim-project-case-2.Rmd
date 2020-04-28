@@ -131,17 +131,14 @@ Since it requires one person to run each Machine C a total of 13 employees will 
 Get employee count histogram
 
 ```{r}
-
 # employee count
 # add up machine time
-
 employee.count <- machine.A/2 + machine.B/2 + machine.C
+
 
 mean(employee.count)
 sd(employee.count)
 hist(employee.count)
-
-
 ```
 
-
+The mean number employees doesn't take into account therounding up for each Machine type, but the histogram is useful for the spread of possible outcomes for employee count.
