@@ -5,26 +5,117 @@ date: "4/26/2020"
 output: word_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+import the data frame with project data
+
+```{r}
+sturgill_manu <- read.csv("sturgill_manu.csv")
+
+set.seed(1234)
+nsim = 100000
+demands <-c(42,18,6,6,6,6)
+
+part.time<- function(demand, mean, sd){
+  total.time <- 0
+  for (i in 1:length(demand)){
+    total.time <- total.time + demand*rnorm(nsim, mean, sd)
+  }
+  return(total.time)
+}
 ```
 
-## R Markdown
+calculate weekly capacity 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r}
+capacity <- 120*rnorm(nsim, .7, .05)
+capacity.mean <- mean(capacity)
+capacity.mean
+capacity.sd <- sd(capacity)
+capacity.sd
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
 ```
 
-## Including Plots
+caclulate time for all parts for each machine
 
-You can also embed plots, for example:
+```{r}
+means.A <- sturgill_manu$Machine.A.avg
+sds.A <- sturgill_manu$Machine.A.sd
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+# calculate rnorm for all parts on machine A
+time.A <- part.time(demands, means.A, sds.A)
+mean(time.A)
+sd(time.A)
+
+# calculate number of machines needed
+machine.A = time.A/capacity
+
+# mean and sd for numbers of machines A 
+mean.machine.A <- mean(machine.A)
+mean.machine.A
+
+sd.machine.A <- sd(machine.A)
+sd.machine.A
+
+hist(machine.A)
+
+# machine B
+
+means.B <- sturgill_manu$Machine.B.avg
+sds.B <- sturgill_manu$Machine.B.sd
+
+# calculate rnorm for all parts on machine B
+time.B <- part.time(demands, means.B, sds.B)
+mean(time.B)
+sd(time.B)
+
+# calculate number of machines needed
+machine.B = time.B/capacity
+
+# mean and sd for numbers of machines B 
+mean.machine.B <- mean(machine.B)
+mean.machine.B
+
+hist(machine.B)
+
+sd.machine.B <- sd(machine.B)
+sd.machine.B
+
+
+# machine C
+
+means.C <- sturgill_manu$Machine.C.avg
+sds.C <- sturgill_manu$Machine.C.sd
+
+# calculate rnorm for all parts on machine C
+time.C <- part.time(demands, means.C, sds.C)
+mean(time.C)
+sd(time.C)
+
+# calculate number of machines needed
+machine.C = time.C/capacity
+
+# mean and sd for numbers of machines C 
+mean.machine.C <- mean(machine.C)
+mean.machine.C
+
+sd.machine.C <- sd(machine.C)
+sd.machine.C
+
+hist(machine.C)
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Get employee count
+
+```{r}
+
+# employee count
+# add up machine time
+employee.count <- machine.A/2 + machine.B/2 + machine.C
+mean(employee.count)
+sd(employee.count)
+hist(employee.count)
+
+
+```
+
+
