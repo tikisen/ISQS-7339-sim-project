@@ -8,7 +8,7 @@ output: word_document
 import the data frame with project data
 
 ```{r}
-sturgill_manu <- read.csv("sturgill_manu.csv")
+sturgill_manu <- read.csv("https://raw.githubusercontent.com/tikisen/ISQS-7339-sim-project/master/Case%202/sturgill_manu.csv")
 
 set.seed(1234)
 nsim = 100000
