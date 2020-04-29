@@ -5,15 +5,21 @@ date: "4/26/2020"
 output: word_document
 ---
 
+In order to predict the numbers of machines and employees required to produce the planned production for the coming year, we use a monte carlo simulation with a normal distribution based on the mean and standard deviation given for the number of hours to produce each part and the amount of available time given the shop efficiency.
 
-import the data frame with project data
+First import the data frame with project data and then set up a function for calculating the amount of production time required for production on each machine.
 
 ```{r}
+# read in the csv with mean time and demand forecast data
 sturgill_manu <- read.csv("https://raw.githubusercontent.com/tikisen/ISQS-7339-sim-project/master/Case%202/sturgill_manu.csv")
 
+# set the seed
 set.seed(1234)
-nsim = 100000
-demands <-c(42,18,6,6,6,6)
+
+# set the number of simulations
+nsim = 1000000
+
+demands <- sturgill_manu$Demand
 
 part.time<- function(demand, mean, sd){
   total.time <- 0
@@ -24,14 +30,24 @@ part.time<- function(demand, mean, sd){
 }
 ```
 
-calculate weekly capacity 
+Up next is to calculate weekly capacity. We can use the normal distribution to determine a mean and sd for the capacity of the plant weekly production capacity.
 
 ```{r}
+# set the seed
+set.seed(1234)
+
+# run the normal distribution times the total weekly hours available
 capacity <- 120*rnorm(nsim, .7, .05)
+
+# find the mean of the hours
 capacity.mean <- mean(capacity)
 capacity.mean
+
+# find the std dev of the hours
 capacity.sd <- sd(capacity)
 capacity.sd
+
+hist(capacity)
 
 ```
 
@@ -40,6 +56,9 @@ caclulate time for all parts for each machine
 First calculate the values for machine A
 
 ```{r}
+# set the seed
+set.seed(1234)
+
 # machine A
 # import means and sds for manufacturing time for parts in machine A
 means.A <- sturgill_manu$Machine.A.avg
@@ -68,6 +87,9 @@ With a mean of 3.4 machines needed to meet demand, we recommend having 4 of Mach
 Next, calculate values for machine B.
 
 ```{r}
+# set the seed
+set.seed(1234)
+
 # machine B
 # import means and sds for manufacturing time for parts in machine A
 means.B <- sturgill_manu$Machine.B.avg
@@ -99,6 +121,9 @@ Since it requires one person to run both Machine A and B a total of 4 employees 
 Next calculate values for machine C.
 
 ```{r}
+# set the seed
+set.seed(1234)
+
 # machine C
 # import means and sds for manufacturing time for parts in machine A
 means.C <- sturgill_manu$Machine.C.avg
